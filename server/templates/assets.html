@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Asset Register — NMDPRA ITAM{% endblock %}
+{% block page_title %}Asset Register{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Asset Register</h1>
+    <p>{{ assets|length }} asset(s) found</p>
+  </div>
+  <div class="flex gap-8">
+    <a href="{{ url_for('views.export_csv') }}" class="btn btn-secondary">↓ Export CSV</a>
+    <a href="{{ url_for('views.new_asset') }}" class="btn btn-primary">＋ Add Asset</a>
+  </div>
+</div>
+
+<div class="card mb-16">
+  <div class="card-body" style="padding:14px 20px">
+    <form method="GET" class="search-bar">
+      <input type="text" name="search" placeholder="Search by name, tag, serial, assigned to…" value="{{ search }}" style="min-width:260px">
+      <select name="category">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+        <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+      </select>
+      <select name="status">
+        <option value="">All Statuses</option>
+        {% for s in ['Active','Under Repair','Disposed','Written Off'] %}
+        <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+      <select name="department">
+        <option value="">All Departments</option>
+        {% for d in departments %}
+        <option value="{{ d.id }}" {% if selected_dept == d.id|string %}selected{% endif %}>{{ d.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+      <a href="{{ url_for('views.assets') }}" class="btn btn-secondary btn-sm">Clear</a>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tag No.</th><th>Asset Name</th><th>Category</th><th>Department</th>
+          <th>Assigned To</th><th>Cost (₦)</th><th>NBV (₦)</th><th>Dep%</th>
+          <th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in assets %}
+        {% set acc, nbv, pct, annual = a.dep_info %}
+        <tr>
+          <td><span class="tag-number">{{ a.tag_number }}</span></td>
+          <td>
+            <a href="{{ url_for('views.view_asset', id=a.id) }}" style="color:var(--green);text-decoration:none;font-weight:500">{{ a.name }}</a>
+            {% if a.brand %}<div class="text-muted">{{ a.brand }}{% if a.model %} {{ a.model }}{% endif %}</div>{% endif %}
+          </td>
+          <td><span class="badge badge-blue">{{ a.category }}</span></td>
+          <td style="font-size:13px">{{ a.dept_name }}</td>
+          <td style="font-size:13px">{{ a.assigned_to or '—' }}</td>
+          <td class="money">{{ "{:,.0f}".format(a.purchase_cost) }}</td>
+          <td class="money">{{ "{:,.0f}".format(nbv) }}</td>
+          <td><span style="color:{% if pct > 80 %}var(--red){% elif pct > 40 %}var(--gold){% else %}var(--green){% endif %}">{{ pct }}%</span></td>
+          <td>
+            {% if a.status == 'Active' %}<span class="badge badge-green">Active</span>
+            {% elif a.status == 'Under Repair' %}<span class="badge badge-gold">Under Repair</span>
+            {% elif a.status == 'Disposed' %}<span class="badge badge-red">Disposed</span>
+            {% else %}<span class="badge badge-gray">{{ a.status }}</span>{% endif %}
+          </td>
+          <td>
+            <div class="flex gap-8">
+              <a href="{{ url_for('views.view_asset', id=a.id) }}" class="btn btn-secondary btn-sm">View</a>
+              <a href="{{ url_for('views.edit_asset', id=a.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="10" style="text-align:center;padding:32px;color:var(--gray-400)">
+          No assets found. <a href="{{ url_for('views.new_asset') }}" style="color:var(--green)">Add the first one →</a>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

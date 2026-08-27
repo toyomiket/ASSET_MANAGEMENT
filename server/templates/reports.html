@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Reports — NMDPRA ITAM{% endblock %}
+{% block page_title %}Reports{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Asset Reports</h1>
+    <p>Depreciation schedule and departmental summary — as at {{ today.strftime('%d %B %Y') }}</p>
+  </div>
+  <div class="flex gap-8 no-print">
+    <button onclick="window.print()" class="btn btn-secondary">⎙ Print</button>
+    <a href="{{ url_for('views.export_csv') }}" class="btn btn-gold">↓ Export CSV</a>
+  </div>
+</div>
+
+<div class="card mb-24">
+  <div class="card-header"><span class="card-title">Departmental Asset Summary</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Department</th>
+          <th style="text-align:right">Assets</th>
+          <th style="text-align:right">Gross Cost (₦)</th>
+          <th style="text-align:right">Accum. Dep. (₦)</th>
+          <th style="text-align:right">Net Book Value (₦)</th>
+          <th style="text-align:right">Dep %</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set tc = namespace(v=0) %}{% set td = namespace(v=0) %}{% set tn = namespace(v=0) %}{% set tc_count = namespace(v=0) %}
+        {% for row in dept_summary %}
+        {% set tc.v = tc.v + row.total_cost %}{% set td.v = td.v + row.total_dep %}{% set tn.v = tn.v + row.total_nbv %}{% set tc_count.v = tc_count.v + row.count %}
+        <tr>
+          <td><strong>{{ row.name }}</strong></td>
+          <td style="text-align:right"><span class="badge badge-blue">{{ row.count }}</span></td>
+          <td style="text-align:right" class="money">{{ "{:,.0f}".format(row.total_cost) }}</td>
+          <td style="text-align:right;color:var(--red)" class="money">{{ "{:,.0f}".format(row.total_dep) }}</td>
+          <td style="text-align:right" class="money"><strong>{{ "{:,.0f}".format(row.total_nbv) }}</strong></td>
+          <td style="text-align:right">
+            {% if row.total_cost > 0 %}
+              {% set p = (row.total_dep / row.total_cost * 100)|round(1) %}
+              <span style="color:{% if p>80 %}var(--red){% elif p>40 %}var(--gold){% else %}var(--green){% endif %}">{{ p }}%</span>
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr style="background:var(--gray-100);font-weight:700">
+          <td>TOTAL</td>
+          <td style="text-align:right">{{ tc_count.v }}</td>
+          <td style="text-align:right" class="money">{{ "{:,.0f}".format(tc.v) }}</td>
+          <td style="text-align:right;color:var(--red)" class="money">{{ "{:,.0f}".format(td.v) }}</td>
+          <td style="text-align:right" class="money">{{ "{:,.0f}".format(tn.v) }}</td>
+          <td style="text-align:right">{% if tc.v %}{{ (td.v/tc.v*100)|round(1) }}%{% endif %}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Full Depreciation Schedule</span>
+    <span style="font-size:12px;color:var(--gray-400)">Straight-Line Method</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tag No.</th><th>Asset Name</th><th>Department</th>
+          <th>Purchase Date</th><th style="text-align:right">Cost (₦)</th>
+          <th>Life</th><th style="text-align:right">Ann.Dep (₦)</th>
+          <th style="text-align:right">Accum.Dep (₦)</th>
+          <th style="text-align:right">NBV (₦)</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in assets %}
+        {% set acc, nbv, pct, annual = a.dep_info %}
+        <tr>
+          <td><span class="tag-number">{{ a.tag_number }}</span></td>
+          <td style="font-size:13px;font-weight:500">{{ a.name }}</td>
+          <td style="font-size:12px">{{ a.dept_name }}</td>
+          <td class="tag-number">{{ a.purchase_date }}</td>
+          <td style="text-align:right" class="money">{{ "{:,.0f}".format(a.purchase_cost) }}</td>
+          <td style="text-align:center">{{ a.useful_life_years }}yr</td>
+          <td style="text-align:right" class="money">{{ "{:,.0f}".format(annual) }}</td>
+          <td style="text-align:right;color:var(--red)" class="money">{{ "{:,.0f}".format(acc) }}</td>
+          <td style="text-align:right" class="money"><strong>{{ "{:,.0f}".format(nbv) }}</strong></td>
+          <td>
+            {% if a.status == 'Active' %}<span class="badge badge-green" style="font-size:11px">Active</span>
+            {% elif a.status == 'Under Repair' %}<span class="badge badge-gold" style="font-size:11px">Repair</span>
+            {% elif a.status == 'Disposed' %}<span class="badge badge-red" style="font-size:11px">Disposed</span>
+            {% else %}<span class="badge badge-gray" style="font-size:11px">{{ a.status }}</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

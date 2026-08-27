@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Departments — NMDPRA ITAM{% endblock %}
+{% block page_title %}Departments{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Departments</h1>
+    <p>Manage organisational units for asset assignment</p>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><span class="card-title">All Departments</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Department Name</th><th>Assets</th><th style="width:220px">Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for d in departments %}
+          <tr id="row-{{ d.id }}">
+            <td class="tag-number">{{ loop.index }}</td>
+            <td id="name-{{ d.id }}"><strong>{{ d.name }}</strong></td>
+            <td><span class="badge badge-green">{{ d.asset_count }}</span></td>
+            <td>
+              <div id="actions-{{ d.id }}" class="flex gap-8">
+                <button class="btn btn-secondary btn-sm" onclick="startEdit({{ d.id }}, '{{ d.name }}')">
+                  ✎ Rename
+                </button>
+                {% if d.asset_count == 0 %}
+                <form method="POST" action="{{ url_for('views.delete_department', id=d.id) }}"
+                  onsubmit="return confirm('Delete {{ d.name }}?')" style="margin:0">
+                  <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+                {% else %}
+                <span class="text-muted">Has assets</span>
+                {% endif %}
+              </div>
+              <form id="edit-form-{{ d.id }}" method="POST"
+                action="{{ url_for('views.edit_department', id=d.id) }}"
+                style="display:none" class="flex gap-8 items-center">
+                <input type="text" name="name" id="edit-input-{{ d.id }}"
+                  value="{{ d.name }}"
+                  style="padding:5px 10px;border:1px solid var(--green);border-radius:6px;font-size:13px;width:160px">
+                <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="cancelEdit({{ d.id }})">Cancel</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:20px">No departments yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="align-self:start">
+    <div class="card-header"><span class="card-title">Add Department</span></div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('views.new_department') }}">
+        <div class="form-group mb-16">
+          <label>Department Name</label>
+          <input type="text" name="name" required placeholder="e.g. Procurement Department">
+        </div>
+        <button type="submit" class="btn btn-primary">＋ Add Department</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function startEdit(id, currentName) {
+  document.getElementById('actions-' + id).style.display = 'none';
+  document.getElementById('edit-form-' + id).style.display = 'flex';
+  const input = document.getElementById('edit-input-' + id);
+  input.focus();
+  input.select();
+}
+function cancelEdit(id) {
+  document.getElementById('edit-form-' + id).style.display = 'none';
+  document.getElementById('actions-' + id).style.display = 'flex';
+}
+</script>
+{% endblock %}

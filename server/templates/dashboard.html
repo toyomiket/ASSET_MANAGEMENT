@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — NMDPRA ITAM{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Asset Overview</h1>
+    <p>Nigerian Midstream &amp; Downstream Petroleum Regulatory Authority — Finance Department</p>
+  </div>
+  <a href="{{ url_for('views.new_asset') }}" class="btn btn-primary">＋ Add Asset</a>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Total Assets</div>
+    <div class="stat-value">{{ total_assets }}</div>
+    <div class="stat-sub">{{ active_assets }} active</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-label">Total Cost (NGN)</div>
+    <div class="stat-value">₦{{ "{:,.0f}".format(total_cost) }}</div>
+    <div class="stat-sub">Gross asset value</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-label">Net Book Value</div>
+    <div class="stat-value">₦{{ "{:,.0f}".format(total_nbv) }}</div>
+    <div class="stat-sub">After depreciation</div>
+  </div>
+  <div class="stat-card gold">
+    <div class="stat-label">Accumulated Depreciation</div>
+    <div class="stat-value">₦{{ "{:,.0f}".format(total_depreciation) }}</div>
+    <div class="stat-sub">{{ "%.1f"|format((total_depreciation / total_cost * 100) if total_cost else 0) }}% of cost</div>
+  </div>
+</div>
+
+<div class="grid-2 mb-24">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Assets by Category</span></div>
+    <div class="card-body" style="padding:0">
+      <table>
+        <thead><tr><th>Category</th><th style="text-align:right">Count</th></tr></thead>
+        <tbody>
+          {% for row in by_category %}
+          <tr>
+            <td>{{ row.category }}</td>
+            <td style="text-align:right"><span class="badge badge-green">{{ row.c }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">Assets by Status</span></div>
+    <div style="padding:0">
+      <table>
+        <thead><tr><th>Status</th><th style="text-align:right">Count</th></tr></thead>
+        <tbody>
+          {% for row in by_status %}
+          <tr>
+            <td>
+              {% if row.status == 'Active' %}<span class="badge badge-green">Active</span>
+              {% elif row.status == 'Under Repair' %}<span class="badge badge-gold">Under Repair</span>
+              {% elif row.status == 'Disposed' %}<span class="badge badge-red">Disposed</span>
+              {% else %}<span class="badge badge-gray">{{ row.status }}</span>{% endif %}
+            </td>
+            <td style="text-align:right"><strong>{{ row.c }}</strong></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div style="border-top:1px solid var(--gray-200);padding:14px 20px 8px;font-size:13px;font-weight:600;color:var(--gray-600)">By Department</div>
+    <div style="padding:0">
+      <table>
+        <tbody>
+          {% for row in by_department %}
+          <tr>
+            <td style="font-size:13px">{{ row.name }}</td>
+            <td style="text-align:right"><span class="badge badge-blue">{{ row.c }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Recently Added Assets</span>
+    <a href="{{ url_for('views.assets') }}" class="btn btn-secondary btn-sm">View All</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Tag No.</th><th>Asset Name</th><th>Department</th><th>Cost (₦)</th><th>Net Book Value</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for a in recent_assets %}
+        {% set acc, nbv, pct, annual = a.dep_info %}
+        <tr>
+          <td><span class="tag-number">{{ a.tag_number }}</span></td>
+          <td><a href="{{ url_for('views.view_asset', id=a.id) }}" style="color:var(--green);text-decoration:none;font-weight:500">{{ a.name }}</a></td>
+          <td>{{ a.dept_name }}</td>
+          <td class="money">₦{{ "{:,.0f}".format(a.purchase_cost) }}</td>
+          <td class="money">₦{{ "{:,.0f}".format(nbv) }}</td>
+          <td>
+            {% if a.status == 'Active' %}<span class="badge badge-green">Active</span>
+            {% elif a.status == 'Under Repair' %}<span class="badge badge-gold">Under Repair</span>
+            {% else %}<span class="badge badge-gray">{{ a.status }}</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

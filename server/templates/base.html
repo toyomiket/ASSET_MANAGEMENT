@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}NMDPRA ITAM{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #006B3F;
+      --green-dark: #004d2d;
+      --green-light: #e6f4ed;
+      --white: #ffffff;
+      --off-white: #f7f8f6;
+      --gray-100: #f0f1ef;
+      --gray-200: #e2e4e0;
+      --gray-400: #9da39a;
+      --gray-600: #5c6359;
+      --gray-800: #2d3329;
+      --gold: #C8942A;
+      --gold-light: #fdf5e6;
+      --red: #c0392b;
+      --red-light: #fdecea;
+      --blue: #1a5276;
+      --blue-light: #eaf0f8;
+      --sidebar-w: 250px;
+      --header-h: 60px;
+      --radius: 8px;
+      --shadow: 0 1px 4px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--off-white);
+      color: var(--gray-800);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--green-dark);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 36px; height: 36px;
+      background: var(--gold);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: white;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      color: white;
+    }
+    .logo-text strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+    .logo-text span {
+      font-size: 10px;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 0;
+      overflow-y: auto;
+    }
+
+    .nav-section {
+      padding: 0 12px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.35);
+      margin-top: 12px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      text-decoration: none;
+      color: rgba(255,255,255,0.75);
+      font-size: 14px;
+      font-weight: 400;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+      margin: 1px 0;
+    }
+
+    .nav-link:hover {
+      background: rgba(255,255,255,0.07);
+      color: white;
+    }
+
+    .nav-link.active {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border-left-color: var(--gold);
+      font-weight: 500;
+    }
+
+    .nav-icon {
+      width: 18px;
+      text-align: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      line-height: 1.5;
+    }
+
+    /* ─── MAIN ─── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: var(--header-h);
+      background: white;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--gray-800);
+      flex: 1;
+    }
+
+    .topbar-date {
+      font-size: 12px;
+      color: var(--gray-400);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .page-content {
+      padding: 28px;
+      flex: 1;
+    }
+
+    /* ─── FLASH ─── */
+    .flash-messages { margin-bottom: 18px; }
+    .flash {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+      font-size: 14px;
+      border-left: 4px solid;
+    }
+    .flash.success { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+    .flash.warning { background: var(--gold-light); border-color: var(--gold); color: #7a5a1a; }
+    .flash.danger  { background: var(--red-light); border-color: var(--red); color: var(--red); }
+
+    /* ─── CARDS ─── */
+    .card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--gray-200);
+    }
+
+    .card-header {
+      padding: 18px 24px 14px;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    .card-body { padding: 20px 24px; }
+
+    /* ─── STAT CARDS ─── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      border: 1px solid var(--gray-200);
+      box-shadow: var(--shadow);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--gray-400);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--gray-800);
+      line-height: 1;
+      margin-bottom: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: var(--gray-400);
+    }
+
+    .stat-card.green .stat-value { color: var(--green); }
+    .stat-card.gold .stat-value { color: var(--gold); }
+    .stat-card.blue .stat-value { color: var(--blue); }
+    .stat-card.red .stat-value { color: var(--red); }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      text-decoration: none;
+      transition: all 0.15s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+    }
+    .btn-primary:hover { background: var(--green-dark); }
+
+    .btn-secondary {
+      background: white;
+      color: var(--gray-600);
+      border-color: var(--gray-200);
+    }
+    .btn-secondary:hover { background: var(--gray-100); }
+
+    .btn-gold {
+      background: var(--gold);
+      color: white;
+      border-color: var(--gold);
+    }
+    .btn-gold:hover { background: #a97820; }
+
+    .btn-danger {
+      background: var(--red-light);
+      color: var(--red);
+      border-color: #f5c6c3;
+    }
+    .btn-danger:hover { background: #f5c6c3; }
+
+    .btn-sm { padding: 5px 11px; font-size: 12.5px; }
+
+    /* ─── TABLE ─── */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--gray-400);
+      border-bottom: 2px solid var(--gray-200);
+      background: var(--gray-100);
+    }
+
+    td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--gray-200);
+      vertical-align: middle;
+    }
+
+    tr:hover td { background: var(--off-white); }
+    tr:last-child td { border-bottom: none; }
+
+    /* ─── BADGES ─── */
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 500;
+    }
+    .badge-green  { background: var(--green-light); color: var(--green-dark); }
+    .badge-gold   { background: var(--gold-light); color: #7a5a1a; }
+    .badge-red    { background: var(--red-light); color: var(--red); }
+    .badge-gray   { background: var(--gray-200); color: var(--gray-600); }
+    .badge-blue   { background: var(--blue-light); color: var(--blue); }
+
+    /* ─── FORMS ─── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--gray-600);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    input, select, textarea {
+      padding: 9px 12px;
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--gray-800);
+      background: white;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0,107,63,0.08);
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* ─── SEARCH BAR ─── */
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-bar input, .search-bar select {
+      width: auto;
+      min-width: 160px;
+    }
+
+    /* ─── PAGE HEADER ─── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .page-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 3px;
+    }
+
+    .page-header p {
+      font-size: 13px;
+      color: var(--gray-400);
+    }
+
+    /* ─── MISC ─── */
+    .money { font-family: 'IBM Plex Mono', monospace; }
+    .tag-number { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--gray-600); }
+    .text-muted { color: var(--gray-400); font-size: 12.5px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+    .mb-0 { margin-bottom: 0; }
+    .mb-4 { margin-bottom: 4px; }
+    .mb-8 { margin-bottom: 8px; }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-24 { margin-bottom: 24px; }
+    .mt-16 { margin-top: 16px; }
+
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .gap-8 { gap: 8px; }
+    .gap-12 { gap: 12px; }
+
+    .text-green { color: var(--green); }
+    .text-red { color: var(--red); }
+    .text-gold { color: var(--gold); }
+
+    @media print {
+      .sidebar, .topbar, .btn, .no-print { display: none !important; }
+      .main { margin-left: 0; }
+      .page-content { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <a href="{{ url_for('views.dashboard') }}" class="sidebar-logo">
+      <div class="logo-mark">NMD</div>
+      <div class="logo-text">
+        <strong>NMDPRA</strong>
+        <span>Asset Management</span>
+      </div>
+    </a>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main Menu</div>
+    <a href="{{ url_for('views.dashboard') }}" class="nav-link {% if request.endpoint == 'views.dashboard' %}active{% endif %}">
+      <span class="nav-icon">◈</span> Dashboard
+    </a>
+    <a href="{{ url_for('views.assets') }}" class="nav-link {% if 'asset' in request.endpoint %}active{% endif %}">
+      <span class="nav-icon">⬡</span> Asset Register
+    </a>
+    <a href="{{ url_for('views.new_asset') }}" class="nav-link {% if request.endpoint == 'views.new_asset' %}active{% endif %}">
+      <span class="nav-icon">＋</span> Add New Asset
+    </a>
+    <div class="nav-section">Management</div>
+    <a href="{{ url_for('views.departments') }}" class="nav-link {% if request.endpoint == 'views.departments' %}active{% endif %}">
+      <span class="nav-icon">▤</span> Departments
+    </a>
+    <a href="{{ url_for('views.reports') }}" class="nav-link {% if request.endpoint == 'views.reports' %}active{% endif %}">
+      <span class="nav-icon">◫</span> Reports
+    </a>
+    <a href="{{ url_for('views.export_csv') }}" class="nav-link">
+      <span class="nav-icon">↓</span> Export to CSV
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    Nigerian Midstream &amp; Downstream<br>Petroleum Regulatory Authority<br>
+    <span style="color:rgba(255,255,255,0.15)">— Finance Dept ITAM System —</span>
+  </div>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title">{% block page_title %}{% endblock %}</div>
+    <span class="topbar-date" id="topbar-date"></span>
+  </header>
+
+  <main class="page-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<script>
+  const d = new Date();
+  document.getElementById('topbar-date').textContent =
+    d.toLocaleDateString('en-NG', {weekday:'short', year:'numeric', month:'short', day:'numeric'});
+</script>
+</body>
+</html>

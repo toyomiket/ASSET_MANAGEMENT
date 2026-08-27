@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if asset else 'New' }} Asset — NMDPRA ITAM{% endblock %}
+{% block page_title %}{{ 'Edit Asset' if asset else 'Add New Asset' }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ 'Edit Asset' if asset else 'Add New Asset' }}</h1>
+    <p>{{ 'Update details for ' + asset.name if asset else 'Register a new asset in the system' }}</p>
+  </div>
+  <a href="{{ url_for('views.assets') }}" class="btn btn-secondary">← Back to Register</a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Asset Information</span>
+  </div>
+  <div class="card-body">
+    <form method="POST">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Tag Number *</label>
+          <input type="text" name="tag_number" required placeholder="e.g. NMDPRA/ICT/001"
+            value="{{ asset.tag_number if asset else '' }}">
+        </div>
+
+        <div class="form-group">
+          <label>Asset Name *</label>
+          <input type="text" name="name" required placeholder="e.g. Dell Latitude 5520 Laptop"
+            value="{{ asset.name if asset else '' }}">
+        </div>
+
+        <div class="form-group">
+          <label>Category *</label>
+          <select name="category" required>
+            <option value="">— Select Category —</option>
+            {% set cats = ['Computer/Laptop', 'Desktop Computer', 'Server', 'Printer', 'Photocopier',
+              'Networking', 'Mobile Device', 'Vehicle', 'Furniture', 'Generator',
+              'Air Conditioner', 'Security Equipment', 'Audio/Visual', 'Other'] %}
+            {% for c in cats %}
+            <option value="{{ c }}" {{ 'selected' if asset and asset.category == c }}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Department *</label>
+          <select name="department_id" required>
+            <option value="">— Select Department —</option>
+            {% for d in departments %}
+            <option value="{{ d.id }}" {{ 'selected' if asset and asset.department_id == d.id }}>{{ d.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Brand / Make</label>
+          <input type="text" name="brand" placeholder="e.g. Dell, HP, Toyota"
+            value="{{ asset.brand or '' if asset else '' }}">
+        </div>
+
+        <div class="form-group">
+          <label>Model</label>
+          <input type="text" name="model" placeholder="e.g. Latitude 5520"
+            value="{{ asset.model or '' if asset else '' }}">
+        </div>
+
+        <div class="form-group">
+          <label>Serial Number</label>
+          <input type="text" name="serial_number" placeholder="Manufacturer serial number"
+            value="{{ asset.serial_number or '' if asset else '' }}">
+        </div>
+
+        <div class="form-group">
+          <label>Assigned To</label>
+          <input type="text" name="assigned_to" placeholder="Name of staff or department"
+            value="{{ asset.assigned_to or '' if asset else '' }}">
+        </div>
+
+        <div class="form-group">
+          <label>Location</label>
+          <input type="text" name="location" placeholder="e.g. Finance Office, Floor 2"
+            value="{{ asset.location or '' if asset else '' }}">
+        </div>
+
+        <div class="form-group">
+          <label>Date Added to Register *</label>
+          <input type="date" name="date_added" required
+            value="{{ asset.date_added if asset and asset.date_added else '' }}">
+        </div>
+
+        <div class="form-group">
+          <label>Purchase Date *</label>
+          <input type="date" name="purchase_date" required
+            value="{{ asset.purchase_date if asset else '' }}">
+        </div>
+
+        <div class="form-group">
+          <label>Purchase Cost (₦) *</label>
+          <input type="number" name="purchase_cost" required min="0" step="0.01" placeholder="e.g. 650000"
+            value="{{ asset.purchase_cost if asset else '' }}">
+        </div>
+
+        <div class="form-group">
+          <label>Useful Life (Years)</label>
+          <select name="useful_life_years">
+            {% for y in [1, 2, 3, 4, 5, 7, 10, 15, 20] %}
+            <option value="{{ y }}" {{ 'selected' if asset and asset.useful_life_years == y else ('selected' if not asset and y == 5) }}>{{ y }} years</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <select name="status">
+            {% for s in ['Active', 'Under Repair', 'Disposed', 'Written Off'] %}
+            <option value="{{ s }}" {{ 'selected' if asset and asset.status == s else ('selected' if not asset and s == 'Active') }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Condition</label>
+          <select name="condition">
+            {% for c in ['Good', 'Fair', 'Poor'] %}
+            <option value="{{ c }}" {{ 'selected' if asset and asset.condition == c else ('selected' if not asset and c == 'Good') }}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group full">
+          <label>Notes / Remarks</label>
+          <textarea name="notes" placeholder="Any additional information…">{{ asset.notes or '' if asset else '' }}</textarea>
+        </div>
+
+      </div>
+
+      <div class="flex gap-8 mt-16">
+        <button type="submit" class="btn btn-primary">
+          {{ '✓ Save Changes' if asset else '＋ Add Asset' }}
+        </button>
+        <a href="{{ url_for('views.assets') }}" class="btn btn-secondary">Cancel</a>
+        {% if asset %}
+        <form method="POST" action="{{ url_for('views.delete_asset', id=asset.id) }}" style="margin-left:auto"
+          onsubmit="return confirm('Delete this asset? This cannot be undone.')">
+          <button type="submit" class="btn btn-danger btn-sm">Delete Asset</button>
+        </form>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

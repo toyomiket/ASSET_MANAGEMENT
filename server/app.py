@@ -13,7 +13,7 @@ app.config['SECRET_KEY'] = 'nmdpra-itam-secret-2024'
 # Allow the React dev server to call the API directly
 CORS(
     app,
-    origins=["http://localhost:3000", "https://asset-0005.netlify.app”],
+    origins=["http://localhost:3000", "https://asset-0005.netlify.app"],
     supports_credentials=True,
 )
 

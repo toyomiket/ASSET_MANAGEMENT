@@ -11,7 +11,11 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'nmdpra-itam-secret-2024'
 
 # Allow the React dev server to call the API directly
-CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
+CORS(
+    app,
+    origins=["http://localhost:3000", "https://asset-0005.netlify.app”],
+    supports_credentials=True,
+)
 
 app.register_blueprint(views_bp)
 app.register_blueprint(api_bp)
